@@ -45,6 +45,10 @@ const helper = {
         // Give a name to the spot light
         spotLight.name = "light";
 
+        // Add axis helper
+        const axesHelper = new THREE.AxesHelper(50);
+        sceneElements.sceneGraph.add(axesHelper);
+
 
         // *********************************** //
         // Create renderer (with shadow map)

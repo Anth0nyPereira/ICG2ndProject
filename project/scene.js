@@ -72,7 +72,31 @@ function onDocumentKeyUp(event) {
     }
 }
 
-//////////////////////////////////////////////////////////////////
+function createGrave() {
+    var shape = new THREE.Shape();
+    shape.moveTo(-2, 0);
+    shape.lineTo(-2, 6);
+    shape.lineTo(-1.5, 6);
+    shape.bezierCurveTo(0, 10, 0, 10, 1.5, 6);
+    shape.lineTo(2, 6);
+    shape.lineTo(2, 0);
+    shape.lineTo(-2, 0);
+
+    var extrudeSettings = {
+        steps: 20,
+        depth: 0.5,
+        bevelEnabled: true,
+        bevelThickness: 1,
+        bevelSize: 1,
+        bevelOffset: 0,
+        bevelSegments: 1
+    };
+
+    var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    var material = new THREE.MeshBasicMaterial({color: 0x656565});
+    var grave = new THREE.Mesh(geometry, material);
+    return grave;
+}
 
 
 // Create and insert in the scene graph the models of the 3D scene
@@ -90,6 +114,10 @@ function load3DObjects(sceneGraph) {
     planeObject.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
     // Set shadow property
     planeObject.receiveShadow = true;
+
+    // Create a grave
+    var grave1 = createGrave();
+    sceneElements.sceneGraph.add(grave1);
 
 
 }
