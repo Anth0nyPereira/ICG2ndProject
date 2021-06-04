@@ -105,7 +105,7 @@ function load3DObjects(sceneGraph) {
     // ************************** //
     // Create a ground plane
     // ************************** //
-    const planeGeometry = new THREE.PlaneGeometry(50, 50);
+    const planeGeometry = new THREE.PlaneGeometry(500, 500);
     const planeMaterial = new THREE.MeshPhongMaterial({ color: 'rgb(200, 200, 200)', side: THREE.DoubleSide });
     const planeObject = new THREE.Mesh(planeGeometry, planeMaterial);
     sceneGraph.add(planeObject);
