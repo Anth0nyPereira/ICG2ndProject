@@ -17,6 +17,16 @@ helper.initEmptyScene(sceneElements);
 load3DObjects(sceneElements.sceneGraph);
 requestAnimationFrame(computeFrame);
 
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let canJump = false;
+
+let prevTime = performance.now();
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
+
 // HANDLING EVENTS
 
 // Event Listeners
@@ -25,8 +35,10 @@ window.addEventListener('resize', resizeWindow);
 
 //To keep track of the keyboard - WASD
 var keyD = false, keyA = false, keyS = false, keyW = false;
+
 document.addEventListener('keydown', onDocumentKeyDown, false);
 document.addEventListener('keyup', onDocumentKeyUp, false);
+
 
 // Update render image size and camera aspect when the window is resized
 function resizeWindow(eventParam) {
@@ -40,37 +52,39 @@ function resizeWindow(eventParam) {
 }
 
 function onDocumentKeyDown(event) {
+
     switch (event.keyCode) {
         case 68: //d
-            keyD = true;
+            moveRight = true;
             break;
         case 83: //s
-            keyS = true;
+            moveBackward = true;
             break;
         case 65: //a
-            keyA = true;
+            moveLeft = true;
             break;
         case 87: //w
-            keyW = true;
+            moveForward = true;
             break;
     }
 }
 function onDocumentKeyUp(event) {
     switch (event.keyCode) {
         case 68: //d
-            keyD = false;
+            moveRight = false;
             break;
         case 83: //s
-            keyS = false;
+            moveBackward = false;
             break;
         case 65: //a
-            keyA = false;
+            moveLeft = false;
             break;
         case 87: //w
-            keyW = false;
+            moveForward = false;
             break;
     }
 }
+
 
 function createGrave() {
     var grave = new THREE.Group();
@@ -132,7 +146,7 @@ function load3DObjects(sceneGraph) {
     var user = new THREE.Mesh(userGeometry, userMaterial);
     user.name = "user";
     user.position.set(0, 1, 40);
-    sceneElements.sceneGraph.add(user);
+    sceneElements.camera.add(user);
 
     // Create a grave
     var grave1 = createGrave();
@@ -147,7 +161,8 @@ var delta = 0.1;
 
 var dispX = 0.2, dispZ = 0.2;
 var isExecuted = false;
-function computeFrame(time) {
+function computeFrame() {
+    /*
 
     
     var pLight = sceneElements.sceneGraph.getObjectByName("pLight");
@@ -192,11 +207,9 @@ function computeFrame(time) {
         camera.position.z = 100;
     }
     
-    console.log("user positions: " + user.position.x + " " + user.position.z);
-    console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
-    if ((Math.round(user.position.x) < pLight.position.x + 4 && Math.round(user.position.x) > pLight.position.x - 4) && (Math.round(user.position.z) < pLight.position.z + 4 && Math.round(user.position.z) > pLight.position.z - 4)) {
-        pLight.position.set(randomIntFromInterval(-50, 50), 4, randomIntFromInterval(-50, 50));
-    }
+    
+    
+
 
     
 
@@ -204,8 +217,60 @@ function computeFrame(time) {
     helper.render(sceneElements);
 
     // NEW --- Update control of the camera
-    sceneElements.control.update();
+    // sceneElements.control.update();
 
     // Call for the next frame
     requestAnimationFrame(computeFrame);
+    */
+    var user = sceneElements.camera.children[0];
+    var pLight = sceneElements.sceneGraph.getObjectByName("pLight");
+    var camera = sceneElements.camera;
+    var target = new THREE.Vector3();
+    console.log("user positions: " + user.position.x + " " + user.position.z);
+    console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
+    console.log(camera.getWorldPosition(target));
+    if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
+        pLight.position.set(randomIntFromInterval(-100, 100), 4, randomIntFromInterval(-100, 100));
+    }
+
+    requestAnimationFrame( computeFrame );
+
+    const time = performance.now();
+    var scenecontrols = sceneElements.control;
+    if ( scenecontrols.isLocked === true ) {
+
+        const delta = ( time - prevTime ) / 1000;
+
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+
+        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+
+        direction.z = Number( moveForward ) - Number( moveBackward );
+        direction.x = Number( moveRight ) - Number( moveLeft );
+        direction.normalize(); // this ensures consistent movements in all directions
+
+        if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
+        if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+
+        scenecontrols.moveRight( - velocity.x * delta );
+        scenecontrols.moveForward( - velocity.z * delta );
+
+        scenecontrols.getObject().position.y += ( velocity.y * delta ); // new behavior
+
+        if ( scenecontrols.getObject().position.y < 10 ) {
+
+            velocity.y = 0;
+            scenecontrols.getObject().position.y = 10;
+
+            canJump = true;
+
+        }
+
+    }
+
+    prevTime = time;
+
+    helper.render(sceneElements);
+
 }

@@ -68,8 +68,12 @@ const helper = {
         // ************************** //
         // NEW --- Control for the camera
         // ************************** //
-        sceneElements.control = new THREE.OrbitControls(camera, renderer.domElement);
-        sceneElements.control.screenSpacePanning = true;
+        sceneElements.control = new THREE.PointerLockControls(camera , document.body);
+
+        document.body.addEventListener( 'click', function () {
+            //lock mouse on screen
+            sceneElements.control.lock();
+        }, false );
 
 
     },
