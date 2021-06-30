@@ -104,11 +104,11 @@ const helper = {
         // Bloom channel creation
         var bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 3, 0, 0);
         bloomPass.renderToScreen = true;
-        /*
-        bloomPass.threshold = 0;
-        bloomPass.strength = 3;
-        bloomPass.radius = 0;
-        */
+        
+        bloomPass.threshold = 0.25;
+        bloomPass.strength = 1;
+        bloomPass.radius = 0.5;
+        
         
         var composer = new THREE.EffectComposer( renderer );
         composer.setSize( window.innerWidth, window.innerHeight );
