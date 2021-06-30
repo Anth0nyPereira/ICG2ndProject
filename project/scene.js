@@ -6,6 +6,7 @@ const sceneElements = {
     camera: null,
     control: null, 
     renderer: null,
+    composer: null,
 };
 
 
@@ -203,6 +204,8 @@ var isExecuted = false;
 var count = 0;
 function computeFrame() {
 
+    sceneElements.composer.render();
+
     var allPlane = sceneElements.sceneGraph.getObjectByName("allPlane");
     var children = allPlane.children;
 
@@ -355,7 +358,7 @@ function computeFrame() {
 
     prevTime = time;
 
-    helper.render(sceneElements);
+    sceneElements.composer.render(sceneElements);
 
 }
 

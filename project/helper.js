@@ -73,6 +73,8 @@ const helper = {
         pLight.position.set(10, 4, 10);
         sceneElements.sceneGraph.add(pLight);
 
+        sceneElements.sceneGraph.add( new THREE.AmbientLight( 0x404040 ) );
+
         // Add axis helper
         const axesHelper = new THREE.AxesHelper(50);
         sceneElements.sceneGraph.add(axesHelper);
@@ -84,8 +86,12 @@ const helper = {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         sceneElements.renderer = renderer;
         renderer.setPixelRatio(window.devicePixelRatio);
+        // renderer.toneMapping = THREE.ReinhardToneMapping;
+        
         renderer.toneMapping = THREE.LinearToneMapping;
+        /*
         renderer.setClearColor(0x000000,0.0);
+        */
         // renderer.setClearColor('rgb(255, 255, 150)', 1.0);
         renderer.setSize(width, height);
 
@@ -94,30 +100,22 @@ const helper = {
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         // Blooom
-        var bloomStrength = 2;
-		var bloomRadius = 0;
-		var bloomThreshold = 0.1;
-
-        var renderScene = new THREE.RenderPass(sceneElements.sceneGraph, sceneElements.camera);
-        var effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
-
-        var copyShader = new THREE.ShaderPass(THREE.CopyShader);
-		copyShader.renderToScreen = true;
-    
-
-        var bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 	
-        		bloomStrength, bloomRadius, bloomThreshold);
-
-		var composer = new THREE.EffectComposer(renderer);
-
-        composer.setSize(window.innerWidth, window.innerHeight);
-        composer.addPass(renderScene);
-        composer.addPass(effectFXAA);
-        composer.addPass(effectFXAA);
-
-        composer.addPass(bloomPass);
-        composer.addPass(copyShader);
-
+        var renderScene = new THREE.RenderPass( sceneElements.sceneGraph, sceneElements.camera );
+        // Bloom channel creation
+        var bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 3, 0, 0);
+        bloomPass.renderToScreen = true;
+        /*
+        bloomPass.threshold = 0;
+        bloomPass.strength = 3;
+        bloomPass.radius = 0;
+        */
+        
+        var composer = new THREE.EffectComposer( renderer );
+        composer.setSize( window.innerWidth, window.innerHeight );
+        composer.addPass( renderScene );
+        // Insert gloom channel bloomPass into composer
+        composer.addPass( bloomPass );
+        sceneElements.composer = composer;
 
 
         // **************************************** //
