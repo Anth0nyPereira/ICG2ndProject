@@ -18,11 +18,7 @@ helper.initEmptyScene(sceneElements);
 load3DObjects(sceneElements.sceneGraph);
 requestAnimationFrame(computeFrame);
 
-let moveForward = false;
-let moveBackward = false;
-let moveLeft = false;
-let moveRight = false;
-let canJump = false;
+var moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false, moveFaster = false;
 
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
@@ -33,9 +29,6 @@ const direction = new THREE.Vector3();
 // Event Listeners
 
 window.addEventListener('resize', resizeWindow);
-
-//To keep track of the keyboard - WASD
-var keyD = false, keyA = false, keyS = false, keyW = false;
 
 document.addEventListener('keydown', onDocumentKeyDown, false);
 document.addEventListener('keyup', onDocumentKeyUp, false);
@@ -67,6 +60,9 @@ function onDocumentKeyDown(event) {
         case 87: //w
             moveForward = true;
             break;
+        case 16: //shift
+            moveFaster = true;
+            break;
     }
 }
 function onDocumentKeyUp(event) {
@@ -82,6 +78,9 @@ function onDocumentKeyUp(event) {
             break;
         case 87: //w
             moveForward = false;
+            break;
+        case 16: //shift
+            moveFaster = false;
             break;
     }
 }
@@ -180,7 +179,7 @@ function load3DObjects(sceneGraph) {
 
     var geometry = new THREE.ConeGeometry( 200, 400, 8 );
     //var geo = new THREE.EdgesGeometry( geometry );
-  	var mat = new THREE.MeshBasicMaterial( { color: 0xff0000, linewidth: 50 } );
+    var mat = new THREE.MeshBasicMaterial( { color: 0xff0000, linewidth: 50 } );
 
     var mesh = new THREE.Mesh(geometry, mat);
     mesh.position.y = 30;
@@ -316,7 +315,7 @@ function computeFrame() {
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
         checkpointGrab.play();
         checkpointGrab.currentTime=0;
-        pLight.position.set(randomIntFromInterval(-500, 500), 4, randomIntFromInterval(-500, 500));
+        pLight.position.set(randomIntFromInterval(-490, 490), 4, randomIntFromInterval(-490, 490));
         checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
 
         // Update score
@@ -344,8 +343,31 @@ function computeFrame() {
         if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
         if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
-        scenecontrols.moveRight( - velocity.x * delta );
-        scenecontrols.moveForward( - velocity.z * delta );
+        if (moveFaster) {
+            velocity.x = 1.2*velocity.x;
+            velocity.z = 1.2*velocity.z;
+
+        }
+
+        scenecontrols.moveRight(-velocity.x * delta);
+        scenecontrols.moveForward(-velocity.z * delta);
+
+        scenecontrols.getObject().position.y += (velocity.y * delta);
+
+        var camera = sceneElements.camera;
+
+        var target = new THREE.Vector3();
+        console.log(camera.getWorldPosition(target));
+
+        if (Math.round(camera.getWorldPosition(target).x) >= 490) {
+            camera.position.x = 490;
+        } else if (Math.round(camera.getWorldPosition(target).x) <= -490) {
+            camera.position.x = -490;
+        } else if (Math.round(camera.getWorldPosition(target).z) >= 490) {
+            camera.position.z = 490;
+        } else if (Math.round(camera.getWorldPosition(target).z) <= -490) {
+            camera.position.z = -490;
+        }
 
         scenecontrols.getObject().position.y += ( velocity.y * delta ); // new behavior
 
