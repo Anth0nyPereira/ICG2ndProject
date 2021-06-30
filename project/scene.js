@@ -126,7 +126,7 @@ function randomIntFromInterval(min, max) { // min and max included
 }
 
 function createPlane() {
-    var random = randomIntFromInterval(1, 10);
+    var random = randomIntFromInterval(1, 20);
     var plane = new THREE.Group();
     var planeGeometry = new THREE.PlaneGeometry(20, 20);
     if (random == 1) {
@@ -231,6 +231,7 @@ var count = 0;
 
 var up = true;
 function computeFrame() {
+    var checkpointGrab = new Audio("/resources/checkpoint.wav");
 
     sceneElements.composer.render();
 
@@ -277,6 +278,8 @@ function computeFrame() {
                     }
                     camera.position.set(0, 1, 40);
                     camera.lookAt(new THREE.Vector3(0, 0, -150));
+                    // Reset score
+                    resetScore();
                 }
             }
         }
@@ -311,7 +314,9 @@ function computeFrame() {
     console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
     console.log(camera.getWorldPosition(target));
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
-        pLight.position.set(randomIntFromInterval(-100, 100), 4, randomIntFromInterval(-100, 100));
+        checkpointGrab.play();
+        checkpointGrab.currentTime=0;
+        pLight.position.set(randomIntFromInterval(-500, 500), 4, randomIntFromInterval(-500, 500));
         checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
 
         // Update score
@@ -365,8 +370,18 @@ function updateScore() {
     var score = document.getElementById("score").textContent;
     score = parseInt(score);
     score = score + randomIntFromInterval(200, 500);
+    score = score.toString();
+    var scoreLength = score.toString().length;
+    var missingZeros = 8 - scoreLength;
+    for (var i = 0; i < missingZeros; i++) {
+        score = "0" + score;
+    }
     document.getElementById("score").textContent=score;
 
+}
+
+function resetScore() {
+    document.getElementById("score").textContent="00000000";
 }
 
 

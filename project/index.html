@@ -35,8 +35,11 @@
 </head>
 
 <body>
+	<audio id="player" autoplay loop>
+        <source src="resources/background.mp3" type="audio/mp3">
+    </audio>
 	<div id="Tag3DScene"> 
-		<p style="position: absolute; display: block; z-index: 99; left: 1%; top: -5%; color: white; font-size: 4vw;">Score: <span id="score">000000</span></p>
+		<p style="position: absolute; display: block; z-index: 99; left: 1%; top: -5%; color: white; font-size: 4vw;">Score: <span id="score">00000000</span></p>
 		<video id="video" playsinline webkit-playsinline muted loop autoplay width="320" height="240" src="resources/video.mp4" style="display: none;"></video>
 	</div>
 </body>
