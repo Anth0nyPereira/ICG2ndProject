@@ -214,7 +214,7 @@ function load3DObjects(sceneGraph) {
     // Create a checkpoint at the same position that is the first light
     var checkpoint1 = createCheckpoint();
     checkpoint1.name = "checkpoint";
-    checkpoint1.position.set(10, 15, 10);
+    checkpoint1.position.set(10, 5, 10);
     sceneElements.sceneGraph.add(checkpoint1);
 
 
@@ -290,14 +290,14 @@ function computeFrame() {
     
     
     if (up) {
-        if (checkpoint.position.y >= 25) {
+        if (checkpoint.position.y >= 15) {
             up = false;
         } else {
             checkpoint.position.y += 0.3;
             //console.log(checkpoint.position.y);
         }
     } else if (!up) {
-        if (checkpoint.position.y <= 10) {
+        if (checkpoint.position.y <= 5) {
             up = true;
         } else {
             checkpoint.position.y -= 0.3;
@@ -313,6 +313,10 @@ function computeFrame() {
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
         pLight.position.set(randomIntFromInterval(-100, 100), 4, randomIntFromInterval(-100, 100));
         checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
+
+        // Update score
+        updateScore();
+
     }
 
     requestAnimationFrame( computeFrame );
@@ -354,6 +358,14 @@ function computeFrame() {
     prevTime = time;
 
     sceneElements.composer.render(sceneElements);
+
+}
+
+function updateScore() {
+    var score = document.getElementById("score").textContent;
+    score = parseInt(score);
+    score = score + randomIntFromInterval(200, 500);
+    document.getElementById("score").textContent=score;
 
 }
 
