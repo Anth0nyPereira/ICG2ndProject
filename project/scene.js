@@ -153,6 +153,28 @@ function createPlane() {
     return plane;
 }
 
+
+function createCheckpoint() {
+    var shape = new THREE.Shape();
+    shape.moveTo(-2, 15);
+    shape.lineTo(2, 15);
+    shape.lineTo(2, 4.5);
+    shape.lineTo(6, 6.5);
+    shape.lineTo(6, 3.5);
+    shape.lineTo(0, 0);
+    shape.lineTo(-6, 3.5);
+    shape.lineTo(-6, 6.5);
+    shape.lineTo(-2, 4.5);
+    shape.lineTo(-2, 10);
+
+    const extrudeSettings = { steps: 2, depth: 2, bevelEnabled: true, bevelThickness: 1, bevelSize: 1, bevelSegments: 2};
+    var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    var material = new THREE.MeshBasicMaterial({color: 0xFFD700});
+    var mesh = new THREE.Mesh(geometry, material);
+    mesh.scale.set(2, 2.3, 2);
+    return mesh;
+}
+
 // Create and insert in the scene graph the models of the 3D scene
 function load3DObjects(sceneGraph) {
 
@@ -163,7 +185,7 @@ function load3DObjects(sceneGraph) {
     var mesh = new THREE.Mesh(geometry, mat);
     mesh.position.y = 30;
     mesh.scale.set(1/5, 1/5, 1/5);
-    sceneElements.sceneGraph.add(mesh);
+    // sceneElements.sceneGraph.add(mesh);
 
     // ************************** //
     // Create a ground plane
@@ -181,8 +203,6 @@ function load3DObjects(sceneGraph) {
 
     sceneElements.sceneGraph.add(allPlane);
     
-
-
     // Create user (for now, it's a cone)
     var userGeometry = new THREE.ConeGeometry(3, 8, 16);
     var userMaterial = new THREE.MeshBasicMaterial({color: 0xffff00});
@@ -191,9 +211,11 @@ function load3DObjects(sceneGraph) {
     user.position.set(0, 1, 40);
     sceneElements.camera.add(user);
 
-    // Create a grave
-    var grave1 = createGrave();
-    sceneElements.sceneGraph.add(grave1);
+    // Create a checkpoint at the same position that is the first light
+    var checkpoint1 = createCheckpoint();
+    checkpoint1.name = "checkpoint";
+    checkpoint1.position.set(10, 15, 10);
+    sceneElements.sceneGraph.add(checkpoint1);
 
 
 }
@@ -206,6 +228,8 @@ var dispX = 0.2, dispZ = 0.2;
 var isExecuted = false;
 
 var count = 0;
+
+var up = true;
 function computeFrame() {
 
     sceneElements.composer.render();
@@ -213,7 +237,7 @@ function computeFrame() {
     var allPlane = sceneElements.sceneGraph.getObjectByName("allPlane");
     var children = allPlane.children; // array of groups
 
-    // Random ground turns red and disappears
+    // Random ground disappears/reappears
     var color = new THREE.Color(0xff0000);
     var randomGround = children[Math.floor(Math.random() * children.length)]; // this is a group
     var plane = randomGround.children[0];
@@ -230,7 +254,6 @@ function computeFrame() {
 
     }
 
-    
 
     var camera = sceneElements.camera;
     var target = new THREE.Vector3();
@@ -260,75 +283,36 @@ function computeFrame() {
         
     }
     
-    /*
+    // Checkpoint animation
 
-    
-    var pLight = sceneElements.sceneGraph.getObjectByName("pLight");
-    if (!isExecuted) {
-        pLight.position.set(randomIntFromInterval(-50, 50), 4, randomIntFromInterval(-50, 50));
-        isExecuted = true;
-    }
-
-    var user = sceneElements.sceneGraph.getObjectByName("user");
-    var camera = sceneElements.camera;
-    camera.lookAt(new THREE.Vector3(0, 0, -150));
-
-    if (keyW && user.position.z >= -100) {
-        user.position.z -= 0.2;
-        camera.position.z -= 0.2;
-    } else if (keyW && user.position.z < -100) {
-        user.position.z = -100;
-        camera.position.z = -100;
-    }
-
-    if (keyA && user.position.x >= -100) {
-        user.position.x -= 0.2;
-        camera.position.x -= 0.2;
-    } else if (keyA && user.position.x < -100) {
-        user.position.x = -100;
-        camera.position.x = -100;
-    }
-
-    if (keyD && user.position.x <= 100) {
-        user.position.x += 0.2;
-        camera.position.x += 0.2;
-    } else if (keyD && user.position.x > 100) {
-        user.position.x = 100;
-        camera.position.x = 100;
-    }
-
-    if (keyS && user.position.z <= 100) {
-        user.position.z += 0.2;
-        camera.position.z += 0.2;
-    } else if (keyD && user.position.z > 100) {
-        user.position.z = 100;
-        camera.position.z = 100;
-    }
+    var checkpoint = sceneElements.sceneGraph.getObjectByName("checkpoint");
+    checkpoint.rotation.y += 0.12;
     
     
-    
+    if (up) {
+        if (checkpoint.position.y >= 25) {
+            up = false;
+        } else {
+            checkpoint.position.y += 0.3;
+            //console.log(checkpoint.position.y);
+        }
+    } else if (!up) {
+        if (checkpoint.position.y <= 10) {
+            up = true;
+        } else {
+            checkpoint.position.y -= 0.3;
+        }
+    } 
 
 
-    
-
-    // Rendering
-    helper.render(sceneElements);
-
-    // NEW --- Update control of the camera
-    // sceneElements.control.update();
-
-    // Call for the next frame
-    requestAnimationFrame(computeFrame);
-    */
-    var user = sceneElements.camera.children[0];
     var pLight = sceneElements.sceneGraph.getObjectByName("pLight");
     var camera = sceneElements.camera;
     var target = new THREE.Vector3();
-    //console.log("user positions: " + user.position.x + " " + user.position.z);
-    //console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
-    //console.log(camera.getWorldPosition(target));
+    console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
+    console.log(camera.getWorldPosition(target));
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
         pLight.position.set(randomIntFromInterval(-100, 100), 4, randomIntFromInterval(-100, 100));
+        checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
     }
 
     requestAnimationFrame( computeFrame );
