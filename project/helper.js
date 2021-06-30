@@ -8,6 +8,39 @@ const helper = {
         // Create the 3D scene
         // ************************** //
         sceneElements.sceneGraph = new THREE.Scene();
+        //Get your video element:
+        const video = document.getElementById('video');
+
+        //Create your video texture:
+        const videoTexture = new THREE.VideoTexture(video);
+        sceneElements.sceneGraph.background = videoTexture;
+            /*
+            // instantiate a loader
+            var loader = new THREE.TextureLoader();
+
+            // load a resource
+            loader.load(
+                // resource URL
+                'background.jpg',
+                // Function when resource is loaded
+                function ( texture ) {
+                    // do something with the texture
+                    sceneElements.sceneGraph.background = texture;
+                    console.log( 'Loaded texture successfully' );
+                },
+                // Function called when download progresses
+                function ( xhr ) {
+                    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+                },
+                // Function called when download errors
+                function ( xhr ) {
+                    console.log( 'An error happened' );
+                }
+            );
+
+            */
+            
+            
 
 
         // ************************** //
@@ -51,12 +84,40 @@ const helper = {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         sceneElements.renderer = renderer;
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setClearColor('rgb(255, 255, 150)', 1.0);
+        renderer.toneMapping = THREE.LinearToneMapping;
+        renderer.setClearColor(0x000000,0.0);
+        // renderer.setClearColor('rgb(255, 255, 150)', 1.0);
         renderer.setSize(width, height);
 
         // Setup shadowMap property
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // Blooom
+        var bloomStrength = 2;
+		var bloomRadius = 0;
+		var bloomThreshold = 0.1;
+
+        var renderScene = new THREE.RenderPass(sceneElements.sceneGraph, sceneElements.camera);
+        var effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
+
+        var copyShader = new THREE.ShaderPass(THREE.CopyShader);
+		copyShader.renderToScreen = true;
+    
+
+        var bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 	
+        		bloomStrength, bloomRadius, bloomThreshold);
+
+		var composer = new THREE.EffectComposer(renderer);
+
+        composer.setSize(window.innerWidth, window.innerHeight);
+        composer.addPass(renderScene);
+        composer.addPass(effectFXAA);
+        composer.addPass(effectFXAA);
+
+        composer.addPass(bloomPass);
+        composer.addPass(copyShader);
+
 
 
         // **************************************** //

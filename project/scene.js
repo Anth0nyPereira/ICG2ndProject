@@ -124,21 +124,47 @@ function randomIntFromInterval(min, max) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
+function createPlane() {
+    const planeGeometry = new THREE.PlaneGeometry(20, 20);
+    const planeMaterial = new THREE.MeshPhongMaterial({ color: 'rgb(200, 200, 200)', side: THREE.DoubleSide });
+    const planeObject = new THREE.Mesh(planeGeometry, planeMaterial);
+     // Change orientation of the plane using rotation
+    planeObject.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
+     // Set shadow property
+    planeObject.receiveShadow = true;
+ 
+    return planeObject;
+}
+
 // Create and insert in the scene graph the models of the 3D scene
 function load3DObjects(sceneGraph) {
+
+    var geometry = new THREE.ConeGeometry( 200, 400, 8 );
+    //var geo = new THREE.EdgesGeometry( geometry );
+  	var mat = new THREE.MeshBasicMaterial( { color: 0xff0000, linewidth: 10 } );
+
+    var mesh = new THREE.Mesh(geometry, mat);
+    mesh.position.y = 30;
+    mesh.scale.set(1/5, 1/5, 1/5);
+    sceneElements.sceneGraph.add(mesh);
 
     // ************************** //
     // Create a ground plane
     // ************************** //
-    const planeGeometry = new THREE.PlaneGeometry(500, 500);
-    const planeMaterial = new THREE.MeshPhongMaterial({ color: 'rgb(200, 200, 200)', side: THREE.DoubleSide });
-    const planeObject = new THREE.Mesh(planeGeometry, planeMaterial);
-    sceneGraph.add(planeObject);
+    var allPlane = new THREE.Object3D();
+    allPlane.name = "allPlane";
+    for (var z = -25; z < 25; z++) {
+        for (var x=-25; x<25; x++) {
+            var plane = createPlane();
+            // plane.name = "plane" + x + "." + z;
+            plane.position.set(x*20, -2, z*20);
+            allPlane.add(plane);
+        }
+    }
 
-    // Change orientation of the plane using rotation
-    planeObject.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-    // Set shadow property
-    planeObject.receiveShadow = true;
+    sceneElements.sceneGraph.add(allPlane);
+    
+
 
     // Create user (for now, it's a cone)
     var userGeometry = new THREE.ConeGeometry(3, 8, 16);
@@ -155,13 +181,71 @@ function load3DObjects(sceneGraph) {
 
 }
 
+var i = 1;                  //  set your counter to 1
+
+function myLoop() {         //  create a loop function
+    setTimeout(function() {   //  call a 3s setTimeout when the loop is called
+        console.log('hello');   //  your code here
+        i++;                    //  increment the counter
+        if (i < 10) {           //  if the counter < 10, call the loop function
+            myLoop();             //  ..  again which will trigger another 
+        }                       //  ..  setTimeout()
+    }, 3000)
+}
+
 // Displacement value
 
 var delta = 0.1;
 
 var dispX = 0.2, dispZ = 0.2;
 var isExecuted = false;
+
+var count = 0;
 function computeFrame() {
+
+    var allPlane = sceneElements.sceneGraph.getObjectByName("allPlane");
+    var children = allPlane.children;
+
+    // Random ground turns red and disappears
+    var color = new THREE.Color(0xff0000);
+    var randomGround = children[Math.floor(Math.random() * children.length)];
+    if (randomGround.visible == true && count % 8 === 0) {
+        randomGround.material.color.setHex(0xff0000);
+        count++;
+        var count2 = 0;
+        randomGround.visible = false;
+        count++;
+
+    } else {
+        randomGround.material.color.setHex(0xC8C8C8);
+        randomGround.visible = true;
+        count++;
+
+    }
+
+    
+
+    var camera = sceneElements.camera;
+    var target = new THREE.Vector3();
+    for (var i = 0; i < children.length; i++) {
+        var elem = children[i];
+        if (elem.visible == false) {
+            if ((Math.round(camera.getWorldPosition(target).x) < elem.position.x + 10 && Math.round(camera.getWorldPosition(target).x) > elem.position.x - 10) && (Math.round(camera.getWorldPosition(target).z) < elem.position.z + 10 && Math.round(camera.getWorldPosition(target).z) > elem.position.z - 10)) {
+                sceneElements.control.unlock();
+                camera.position.y -= 1;
+                if (camera.position.y == -100) {
+                    sceneElements.control.unlock();
+                    for (var i=0; i<children.length; i++) {
+                        children[i].visible = true;
+                    }
+                    camera.position.set(0, 1, 40);
+                    camera.lookAt(new THREE.Vector3(0, 0, -150));
+                }
+            }
+        }
+        
+    }
+    
     /*
 
     
@@ -226,9 +310,9 @@ function computeFrame() {
     var pLight = sceneElements.sceneGraph.getObjectByName("pLight");
     var camera = sceneElements.camera;
     var target = new THREE.Vector3();
-    console.log("user positions: " + user.position.x + " " + user.position.z);
-    console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
-    console.log(camera.getWorldPosition(target));
+    //console.log("user positions: " + user.position.x + " " + user.position.z);
+    //console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
+    //console.log(camera.getWorldPosition(target));
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
         pLight.position.set(randomIntFromInterval(-100, 100), 4, randomIntFromInterval(-100, 100));
     }
@@ -274,3 +358,5 @@ function computeFrame() {
     helper.render(sceneElements);
 
 }
+
+
