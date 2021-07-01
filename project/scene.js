@@ -1,5 +1,3 @@
-"use strict";
-
 // To store the scene graph, and elements usefull to rendering the scene
 const sceneElements = {
     sceneGraph: null,
@@ -7,6 +5,7 @@ const sceneElements = {
     control: null, 
     renderer: null,
     composer: null,
+    spheresDirections: null,
 };
 
 
@@ -174,6 +173,15 @@ function createCheckpoint() {
     return mesh;
 }
 
+    function createSphere() {
+        var geometry = new THREE.SphereGeometry(20, 10, 10);
+        var geo = new THREE.EdgesGeometry(geometry);
+        var mat = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 0 });
+        var sphere = new THREE.LineSegments(geo, mat);
+        return sphere;
+    }
+
+
 // Create and insert in the scene graph the models of the 3D scene
 function load3DObjects(sceneGraph) {
 
@@ -216,6 +224,23 @@ function load3DObjects(sceneGraph) {
     checkpoint1.position.set(10, 5, 10);
     sceneElements.sceneGraph.add(checkpoint1);
 
+    // Create obstacles!! 
+    sceneElements.spheresDirections = []; // random directions of the spheres; sphere 1 with direction[0] and so on
+    var randomD = ["x", "-x", "z", "-z"];
+    // Sphere that will kill youuuuuu
+    for (var i = 1; i < 5; i ++) {
+        var sphere1 = createSphere();
+        sphere1.name = "sphere" + i;
+        sphere1.position.y = 18;
+        sphere1.visible = true;
+        var randomChoice = randomElementFromArray(randomD);
+        //console.log(sceneElements.spheresDirections);
+        sceneElements.spheresDirections.push(randomChoice);
+        sceneElements.sceneGraph.add(sphere1);
+        sphere1.position.set(randomIntFromInterval(-490, 490), 18, randomIntFromInterval(-490, 490));
+    }
+    
+
 
 }
 
@@ -229,16 +254,22 @@ var isExecuted = false;
 var count = 0;
 
 var up = true;
+
+var deltaSphere1 = 1;
+
+var spheres = 0;
+
+var firstTimeMoveSphere = true;
+
 function computeFrame() {
     var checkpointGrab = new Audio("/resources/checkpoint.wav");
-
+    
     sceneElements.composer.render();
 
     var allPlane = sceneElements.sceneGraph.getObjectByName("allPlane");
     var children = allPlane.children; // array of groups
 
     // Random ground disappears/reappears
-    var color = new THREE.Color(0xff0000);
     var randomGround = children[Math.floor(Math.random() * children.length)]; // this is a group
     var plane = randomGround.children[0];
     var edges = randomGround.children[1];
@@ -310,8 +341,8 @@ function computeFrame() {
     var pLight = sceneElements.sceneGraph.getObjectByName("pLight");
     var camera = sceneElements.camera;
     var target = new THREE.Vector3();
-    console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
-    console.log(camera.getWorldPosition(target));
+    //console.log("light positions: " + pLight.position.x + " " + pLight.position.z);
+    //console.log(camera.getWorldPosition(target));
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
         checkpointGrab.play();
         checkpointGrab.currentTime=0;
@@ -322,6 +353,38 @@ function computeFrame() {
         updateScore();
 
     }
+
+    // Animate spheres
+    //animateSpheres();
+
+    //console.log("spheres: " + spheres);    
+    var sphere1 = sceneElements.sceneGraph.getObjectByName("sphere1");
+    var chosenDirection = sceneElements.spheresDirections[0];
+    if (chosenDirection == "x") {
+        sphere1.position.x += deltaSphere1*8;
+        if (sphere1.position.x >= 490 || sphere1.position.x <= -490) {
+            deltaSphere1 *= -1;
+        }
+    } else if (chosenDirection == "-x") {
+        sphere1.position.x -= deltaSphere1*8;
+        if (sphere1.position.x >= 490 || sphere1.position.x <= -490) {
+            deltaSphere1 *= -1;
+        }
+    } else if (chosenDirection == "z") {
+        sphere1.position.z += deltaSphere1*8;
+        if (sphere1.position.z >= 490 || sphere1.position.z <= -490) {
+            deltaSphere1 *= -1;
+        }
+    } else if (chosenDirection == "-z") {
+        sphere1.position.z -= deltaSphere1*8;
+        if (sphere1.position.z >= 490 || sphere1.position.z <= -490) {
+            deltaSphere1 *= -1;
+        }
+    }
+    
+    
+    
+    
 
     requestAnimationFrame( computeFrame );
 
@@ -357,7 +420,6 @@ function computeFrame() {
         var camera = sceneElements.camera;
 
         var target = new THREE.Vector3();
-        console.log(camera.getWorldPosition(target));
 
         if (Math.round(camera.getWorldPosition(target).x) >= 490) {
             camera.position.x = 490;
@@ -405,5 +467,69 @@ function updateScore() {
 function resetScore() {
     document.getElementById("score").textContent="00000000";
 }
+
+function randomElementFromArray(array) {
+    return array[Math.floor(Math.random()*array.length)];
+}
+
+function animateSpheres() {
+    for (var i=0; i<1; i++) {
+        var animatingSphere = sceneElements.sceneGraph.getObjectByName("sphere" + i);
+        var direction = sceneElements.spheresDirections[i];
+        moveSphere(animatingSphere, direction);
+    }
+}
+
+function moveSphere(sphere, direction) {
+    var target = new THREE.Vector3();
+    if (direction == "x" || direction == "-x") {
+        if (direction == "x") {
+            sphere.rotation.x = Math.PI/2;
+            sphere.rotation.z += 0.5;
+            if (sphere.getWorldPosition(target).x >= 490) {
+                direction = "-x";
+            } else {
+                sphere.position.x += 10;
+            }
+
+        } else if (direction == "-x") {
+            sphere.rotation.x = Math.PI/2;
+            sphere.rotation.z -= 0.5;
+            if (sphere.getWorldPosition(target).x <= -490) {
+                direction = "x";
+            } else {
+                sphere.position.x -= 10;
+            }
+        }
+
+    } else {
+        if (direction == "z") {
+            sphere.rotation.z = Math.PI/2;
+            sphere.rotation.x += 0.5;
+            if (sphere.getWorldPosition(target).z >= 490) {
+                direction = "-z";
+            } else {
+                sphere.position.z += 10;
+            }
+
+        } else if (direction == "-z") {
+            sphere.rotation.z = Math.PI/2;
+            sphere.rotation.x -= 0.5;
+            if (sphere.getWorldPosition(target).z <= -490) {
+                direction = "z";
+            } else {
+                sphere.position.z -= 10;
+            }
+        }
+
+        var target = new THREE.Vector3();
+        if (direction == "z") {
+            console.log(sphere.getWorldPosition(target));
+        }
+        
+        
+    }
+}
+
 
 

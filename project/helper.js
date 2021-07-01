@@ -1,5 +1,3 @@
-"use strict";
-
 const helper = {
 
     initEmptyScene: function (sceneElements) {
@@ -14,35 +12,7 @@ const helper = {
         //Create your video texture:
         const videoTexture = new THREE.VideoTexture(video);
         sceneElements.sceneGraph.background = videoTexture;
-            /*
-            // instantiate a loader
-            var loader = new THREE.TextureLoader();
-
-            // load a resource
-            loader.load(
-                // resource URL
-                'background.jpg',
-                // Function when resource is loaded
-                function ( texture ) {
-                    // do something with the texture
-                    sceneElements.sceneGraph.background = texture;
-                    console.log( 'Loaded texture successfully' );
-                },
-                // Function called when download progresses
-                function ( xhr ) {
-                    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-                },
-                // Function called when download errors
-                function ( xhr ) {
-                    console.log( 'An error happened' );
-                }
-            );
-
-            */
-            
-            
-
-
+        
         // ************************** //
         // Add camera
         // ************************** //
