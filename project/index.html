@@ -29,6 +29,17 @@
 		p {
     		font-family: NeonPixel;
 		}
+
+		#menu {
+			position: absolute;
+			width: 500px;
+			height: 450px;
+			z-index: 99;
+			top: 50%;
+			left: 50%;
+			margin: -225px 0 0 -250px;
+			background-color: rgb(255, 255, 255, 0.8);
+		}
 	</style>
 
 
@@ -40,6 +51,15 @@
     </audio>
 	<div id="Tag3DScene"> 
 		<p style="position: absolute; display: block; z-index: 99; left: 1%; top: -5%; color: white; font-size: 4vw;">Score: <span id="score">00000000</span></p>
+
+		<div id="menu">
+			<p style="text-align: center; font-size: 1.7vw">CONTROLS</p>
+			<p style="text-align: center; font-size: 1.7vw">Move: W/A/S/D</p>
+			<p style="text-align: center; font-size: 1.7vw">Move Faster: Shift</p>
+			<p style="text-align: center; font-size: 1.7vw">Look Around: Move Cursor</p>
+			<p style="text-align: center; font-size: 1.7vw">Show Menu: Double Esc</p>
+			<p style="text-align: center; font-size: 1.7vw">Return Game: Click</p>
+		</div>
 		<video id="video" playsinline webkit-playsinline muted loop autoplay width="320" height="240" src="resources/video.mp4" style="display: none;"></video>
 	</div>
 </body>

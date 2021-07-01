@@ -17,7 +17,7 @@ helper.initEmptyScene(sceneElements);
 load3DObjects(sceneElements.sceneGraph);
 requestAnimationFrame(computeFrame);
 
-var moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false, moveFaster = false;
+var moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false, moveFaster = false, show = false;
 
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
@@ -61,7 +61,11 @@ function onDocumentKeyDown(event) {
             break;
         case 16: //shift
             moveFaster = true;
+            break;  
+        case 27: //esc
+            show = true;
             break;
+            
     }
 }
 function onDocumentKeyUp(event) {
@@ -186,6 +190,18 @@ function createCheckpoint() {
         checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
     }
 
+    function createMonster() {
+        var head = new THREE.Shape();
+        head.moveTo(-1.5, 3);
+        head.lineTo(1.5, 3);
+        head.lineTo(0, 0);
+        head.lineTo(-1.5, 3);
+
+        var headSettings = { steps: 2, depth: 2, bevelEnabled: false, bevelThickness: 1, bevelSize: 1, bevelSegments: 2};
+        var headGeometry = THREE.ExtrudeGeometry(shape, extrudeSettings);
+    
+    }
+
 
 // Create and insert in the scene graph the models of the 3D scene
 function load3DObjects(sceneGraph) {
@@ -275,6 +291,7 @@ var spheres = 0;
 var firstTimeMoveSphere = true;
 
 function computeFrame() {
+
     var checkpointGrab = new Audio("/resources/checkpoint.wav");
     
     sceneElements.composer.render();
@@ -379,8 +396,7 @@ function computeFrame() {
 
     const time = performance.now();
     var scenecontrols = sceneElements.control;
-    if ( scenecontrols.isLocked === true ) {
-
+    if (scenecontrols.isLocked === true) {
         const delta = ( time - prevTime ) / 1000;
 
         velocity.x -= velocity.x * 10.0 * delta;
@@ -431,6 +447,12 @@ function computeFrame() {
 
         }
 
+    } else {
+        if (show) {
+            document.getElementById("menu").style.display = "block";
+            show = false;
+        }
+        
     }
 
     prevTime = time;
@@ -536,7 +558,7 @@ function fallAndResetGame() {
 }
 
 function resetGame() {
-    ;
+    
     showAllPlanes();
 
     resetCamera();

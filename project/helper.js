@@ -101,8 +101,9 @@ const helper = {
 
         document.body.addEventListener( 'click', function () {
             //lock mouse on screen
+            document.getElementById("menu").style.display = "none";
             sceneElements.control.lock();
-        }, false );
+        });
 
 
     },
