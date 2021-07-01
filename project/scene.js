@@ -407,8 +407,8 @@ function computeFrame() {
         checkpointGrab.currentTime=0;
         selectPosition(pLight, checkpoint);
 
-        // Update score
-        updateScore();
+        // Update score (between 200 & 500)
+        updateScore(200, 500);
 
     }
 
@@ -431,7 +431,7 @@ function computeFrame() {
     
     // Create monsters and animate them
     
-    if (count % 40 == 0) {
+    if (count % 20 == 0) {
         var pickedMonster = randomElementFromArray(sceneElements.existingMonsters); // get name of a specific monster
         var monsterFromScene = sceneElements.sceneGraph.getObjectByName(pickedMonster);
         if (monsterFromScene.visible == false) {
@@ -530,10 +530,10 @@ function computeFrame() {
 
 }
 
-function updateScore() {
+function updateScore(x, y) {
     var score = document.getElementById("score").textContent;
     score = parseInt(score);
-    score = score + randomIntFromInterval(200, 500);
+    score = score + randomIntFromInterval(x, y);
     score = score.toString();
     var scoreLength = score.toString().length;
     var missingZeros = 8 - scoreLength;
@@ -675,6 +675,9 @@ function checkIfMonsterIsInsideVoid(monster) {
         if (elem.visible == false) {
             if ((Math.round(monster.position.x) < elem.getWorldPosition(target).x + 10 && Math.round(monster.position.x) > elem.getWorldPosition(target).x - 10) && (Math.round(monster.position.z) < elem.getWorldPosition(target).z + 10 && Math.round(monster.position.z) > elem.getWorldPosition(target).z - 10)) {
                 monster.position.y -= 1;
+
+                // Update score (for killing a monster or just by luck lmao they are dumb sometimes)
+                updateScore(100, 200);
                 if (monster.position.y < 5) {
                     monster.position.set(randomIntFromInterval(-490, 490), 10, randomIntFromInterval(-490, 490));
                     monster.visible = false;
