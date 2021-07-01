@@ -181,6 +181,11 @@ function createCheckpoint() {
         return sphere;
     }
 
+    function selectPosition(pLight, checkpoint) {
+        pLight.position.set(randomIntFromInterval(-490, 490), 4, randomIntFromInterval(-490, 490));
+        checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
+    }
+
 
 // Create and insert in the scene graph the models of the 3D scene
 function load3DObjects(sceneGraph) {
@@ -228,8 +233,9 @@ function load3DObjects(sceneGraph) {
     sceneElements.spheresDirections = []; // random directions of the spheres; sphere 1 with direction[0] and so on
     var randomD = ["x", "-x", "z", "-z"];
     sceneElements.spheresDeltas = [];
-    // Sphere that will kill youuuuuu
-    for (var i = 1; i < 9; i ++) {
+
+    // Spheres that will kill youuuuuu
+    for (var i = 1; i < 7; i ++) {
         var sphere1 = createSphere();
         sphere1.name = "sphere" + i;
         sphere1.position.y = 18;
@@ -303,21 +309,7 @@ function computeFrame() {
             //console.log("ground: " + elem.position.x + 10);
             if ((Math.round(camera.getWorldPosition(target).x) < elem.getWorldPosition(target).x + 10 && Math.round(camera.getWorldPosition(target).x) > elem.getWorldPosition(target).x - 10) && (Math.round(camera.getWorldPosition(target).z) < elem.getWorldPosition(target).z + 10 && Math.round(camera.getWorldPosition(target).z) > elem.getWorldPosition(target).z - 10)) {
                 //console.log("hey");
-                sceneElements.control.unlock();
-                camera.position.y -= 1;
-                if (camera.position.y == -100) {
-                    sceneElements.control.unlock();
-                    for (var i=0; i<children.length; i++) {
-                        var elem = children[i].children[0];
-                        var edges = children[i].children[1];
-                        elem.visible = true;
-                        edges.visible = true;
-                    }
-                    camera.position.set(0, 1, 40);
-                    camera.lookAt(new THREE.Vector3(0, 0, -150));
-                    // Reset score
-                    resetScore();
-                }
+                fallAndResetGame();
             }
         }
         
@@ -353,8 +345,7 @@ function computeFrame() {
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
         checkpointGrab.play();
         checkpointGrab.currentTime=0;
-        pLight.position.set(randomIntFromInterval(-490, 490), 4, randomIntFromInterval(-490, 490));
-        checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
+        selectPosition(pLight, checkpoint);
 
         // Update score
         updateScore();
@@ -364,7 +355,20 @@ function computeFrame() {
     // Animate spheres
     animateSpheres();
 
-    //console.log("spheres: " + spheres); 
+    // If camera gets touched by some sphere, izi kill rip
+    for (var k=1; k<7; k++) {
+        var sphere = sceneElements.sceneGraph.getObjectByName("sphere" + k);
+        if ((Math.round(camera.getWorldPosition(target).x) < sphere.position.x + 12 && Math.round(camera.getWorldPosition(target).x) > sphere.position.x - 12) && (Math.round(camera.getWorldPosition(target).z) < sphere.position.z + 12 && Math.round(camera.getWorldPosition(target).z) > sphere.position.z - 12)) {
+            // alert("died 2.0");
+            var deathSound = new Audio("/resources/death.wav");
+            deathSound.play();
+            deathSound.currentTime=0;
+
+            resetGame();
+        }
+    }
+    
+    
     
     
     
@@ -458,7 +462,7 @@ function randomElementFromArray(array) {
 }
 
 function animateSpheres() {
-    for (var j = 1; j < 9; j++) {
+    for (var j = 1; j < 7; j++) {
         var deltaSphere = deltaSpheres[j-1];
         var sphere = sceneElements.sceneGraph.getObjectByName("sphere" + j);
         var chosenDirection = sceneElements.spheresDirections[j-1];
@@ -494,6 +498,51 @@ function animateSpheres() {
             }
         }
     }
+}
+
+function showAllPlanes() {
+    var allPlanes = sceneElements.sceneGraph.getObjectByName("allPlane").children;
+    for (var i=0; i<allPlanes.length; i++) {
+        var elem = allPlanes[i].children[0];
+        var edges = allPlanes[i].children[1];
+        elem.visible = true;
+        edges.visible = true;
+    }
+
+}
+
+function resetCamera() {
+    sceneElements.camera.position.set(0, 1, 40);
+    sceneElements.camera.lookAt(new THREE.Vector3(0, 0, -150));
+}
+
+function fallAndResetGame() {
+    
+    sceneElements.control.unlock();
+    sceneElements.camera.position.y -= 1;
+    if (sceneElements.camera.position.y == -100) {
+        var fallSound = new Audio("/resources/fall.wav");
+        fallSound.play();
+        fallSound.currentTime=0;
+
+        showAllPlanes();
+
+        resetCamera();
+
+        // Reset score
+        resetScore();
+    }
+
+}
+
+function resetGame() {
+    ;
+    showAllPlanes();
+
+    resetCamera();
+
+    // Reset score
+    resetScore();
 }
 
 
