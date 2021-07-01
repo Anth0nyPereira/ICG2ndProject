@@ -46,7 +46,7 @@ const helper = {
         sceneElements.sceneGraph.add( new THREE.AmbientLight( 0x404040 ) );
 
         // Add axis helper
-        const axesHelper = new THREE.AxesHelper(50);
+        const axesHelper = new THREE.AxesHelper(500);
         sceneElements.sceneGraph.add(axesHelper);
 
 

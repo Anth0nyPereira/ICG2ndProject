@@ -176,7 +176,7 @@ function createCheckpoint() {
     function createSphere() {
         var geometry = new THREE.SphereGeometry(20, 10, 10);
         var geo = new THREE.EdgesGeometry(geometry);
-        var mat = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 0 });
+        var mat = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 1.5 });
         var sphere = new THREE.LineSegments(geo, mat);
         return sphere;
     }
@@ -227,8 +227,9 @@ function load3DObjects(sceneGraph) {
     // Create obstacles!! 
     sceneElements.spheresDirections = []; // random directions of the spheres; sphere 1 with direction[0] and so on
     var randomD = ["x", "-x", "z", "-z"];
+    sceneElements.spheresDeltas = [];
     // Sphere that will kill youuuuuu
-    for (var i = 1; i < 5; i ++) {
+    for (var i = 1; i < 9; i ++) {
         var sphere1 = createSphere();
         sphere1.name = "sphere" + i;
         sphere1.position.y = 18;
@@ -238,6 +239,11 @@ function load3DObjects(sceneGraph) {
         sceneElements.spheresDirections.push(randomChoice);
         sceneElements.sceneGraph.add(sphere1);
         sphere1.position.set(randomIntFromInterval(-490, 490), 18, randomIntFromInterval(-490, 490));
+        if (randomChoice == "z"  || randomChoice == "-z") {
+            sphere1.rotation.z = Math.PI/2;
+        } else if (randomChoice == "x" || randomChoice == "-x") {
+            sphere1.rotation.x = Math.PI/2;
+        }
     }
     
 
@@ -255,6 +261,7 @@ var count = 0;
 
 var up = true;
 
+var deltaSpheres = [1, 1, 1, 1, 1, 1, 1, 1];
 var deltaSphere1 = 1;
 
 var spheres = 0;
@@ -355,32 +362,10 @@ function computeFrame() {
     }
 
     // Animate spheres
-    //animateSpheres();
+    animateSpheres();
 
-    //console.log("spheres: " + spheres);    
-    var sphere1 = sceneElements.sceneGraph.getObjectByName("sphere1");
-    var chosenDirection = sceneElements.spheresDirections[0];
-    if (chosenDirection == "x") {
-        sphere1.position.x += deltaSphere1*8;
-        if (sphere1.position.x >= 490 || sphere1.position.x <= -490) {
-            deltaSphere1 *= -1;
-        }
-    } else if (chosenDirection == "-x") {
-        sphere1.position.x -= deltaSphere1*8;
-        if (sphere1.position.x >= 490 || sphere1.position.x <= -490) {
-            deltaSphere1 *= -1;
-        }
-    } else if (chosenDirection == "z") {
-        sphere1.position.z += deltaSphere1*8;
-        if (sphere1.position.z >= 490 || sphere1.position.z <= -490) {
-            deltaSphere1 *= -1;
-        }
-    } else if (chosenDirection == "-z") {
-        sphere1.position.z -= deltaSphere1*8;
-        if (sphere1.position.z >= 490 || sphere1.position.z <= -490) {
-            deltaSphere1 *= -1;
-        }
-    }
+    //console.log("spheres: " + spheres); 
+    
     
     
     
@@ -473,63 +458,44 @@ function randomElementFromArray(array) {
 }
 
 function animateSpheres() {
-    for (var i=0; i<1; i++) {
-        var animatingSphere = sceneElements.sceneGraph.getObjectByName("sphere" + i);
-        var direction = sceneElements.spheresDirections[i];
-        moveSphere(animatingSphere, direction);
-    }
-}
-
-function moveSphere(sphere, direction) {
-    var target = new THREE.Vector3();
-    if (direction == "x" || direction == "-x") {
-        if (direction == "x") {
-            sphere.rotation.x = Math.PI/2;
-            sphere.rotation.z += 0.5;
-            if (sphere.getWorldPosition(target).x >= 490) {
-                direction = "-x";
-            } else {
-                sphere.position.x += 10;
+    for (var j = 1; j < 9; j++) {
+        var deltaSphere = deltaSpheres[j-1];
+        var sphere = sceneElements.sceneGraph.getObjectByName("sphere" + j);
+        var chosenDirection = sceneElements.spheresDirections[j-1];
+        if (chosenDirection == "x") {
+            sphere.rotation.y += 0.5;
+            sphere.position.x += deltaSphere*6;
+            
+            if (sphere.position.x >= 490 || sphere.position.x <= -490) {
+                deltaSphere *= -1;
+                deltaSpheres[j-1] = deltaSphere;
             }
-
-        } else if (direction == "-x") {
-            sphere.rotation.x = Math.PI/2;
-            sphere.rotation.z -= 0.5;
-            if (sphere.getWorldPosition(target).x <= -490) {
-                direction = "x";
-            } else {
-                sphere.position.x -= 10;
+        } else if (chosenDirection == "-x") {
+            sphere.rotation.y -= 0.5;
+            sphere.position.x -= deltaSphere*6;
+        
+            if (sphere.position.x >= 490 || sphere.position.x <= -490) {
+                deltaSphere *= -1;
+                deltaSpheres[j-1] = deltaSphere;
             }
-        }
-
-    } else {
-        if (direction == "z") {
-            sphere.rotation.z = Math.PI/2;
+        } else if (chosenDirection == "z") {
             sphere.rotation.x += 0.5;
-            if (sphere.getWorldPosition(target).z >= 490) {
-                direction = "-z";
-            } else {
-                sphere.position.z += 10;
+            sphere.position.z += deltaSphere*6;
+            if (sphere.position.z >= 490 || sphere.position.z <= -490) {
+                deltaSphere *= -1;
+                deltaSpheres[j-1] = deltaSphere;
             }
-
-        } else if (direction == "-z") {
-            sphere.rotation.z = Math.PI/2;
+        } else if (chosenDirection == "-z") {
             sphere.rotation.x -= 0.5;
-            if (sphere.getWorldPosition(target).z <= -490) {
-                direction = "z";
-            } else {
-                sphere.position.z -= 10;
+            sphere.position.z -= deltaSphere*6;
+            if (sphere.position.z >= 490 || sphere.position.z <= -490) {
+                deltaSphere *= -1;
+                deltaSpheres[j-1] = deltaSphere;
             }
         }
-
-        var target = new THREE.Vector3();
-        if (direction == "z") {
-            console.log(sphere.getWorldPosition(target));
-        }
-        
-        
     }
 }
+
 
 
 
