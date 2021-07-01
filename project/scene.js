@@ -531,6 +531,7 @@ function computeFrame() {
 }
 
 function updateScore(x, y) {
+    var scoreSound = new Audio("/resources/points.wav");
     var score = document.getElementById("score").textContent;
     score = parseInt(score);
     score = score + randomIntFromInterval(x, y);
@@ -541,6 +542,8 @@ function updateScore(x, y) {
         score = "0" + score;
     }
     document.getElementById("score").textContent=score;
+    scoreSound.play();
+    scoreSound.currentTime=0;
 
 }
 
