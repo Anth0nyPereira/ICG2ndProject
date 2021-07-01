@@ -306,7 +306,7 @@ function load3DObjects(sceneGraph) {
 
     sceneElements.existingMonsters = [];
     // Create monsters!!
-    for (var m=1; m<50; m++) {
+    for (var m=1; m<20; m++) {
         var monster = createMonster();
         // console.log("monster" + m);
         monster.name = "monster" + m;
@@ -508,15 +508,12 @@ function computeFrame() {
             camera.position.z = -490;
         }
 
-        scenecontrols.getObject().position.y += ( velocity.y * delta ); // new behavior
+        scenecontrols.getObject().position.y += ( velocity.y * delta );
 
         if ( scenecontrols.getObject().position.y < 10 ) {
 
             velocity.y = 0;
             scenecontrols.getObject().position.y = 10;
-
-            canJump = true;
-
         }
 
     } else {
@@ -664,7 +661,26 @@ function animateAllMonsters() {
             dir.subVectors(v2, v1).normalize();
             monster.position.x += dir.x;
             monster.position.z += dir.z;
+            checkIfMonsterIsInsideVoid(monster);
         }
+    }
+}
+
+function checkIfMonsterIsInsideVoid(monster) {
+    var target = new THREE.Vector3();
+    var allPlane = sceneElements.sceneGraph.getObjectByName("allPlane");
+    var children = allPlane.children; 
+    for (var i=0; i<children.length; i++) {
+        var elem = children[i].children[0];
+        if (elem.visible == false) {
+            if ((Math.round(monster.position.x) < elem.getWorldPosition(target).x + 10 && Math.round(monster.position.x) > elem.getWorldPosition(target).x - 10) && (Math.round(monster.position.z) < elem.getWorldPosition(target).z + 10 && Math.round(monster.position.z) > elem.getWorldPosition(target).z - 10)) {
+                monster.position.y -= 1;
+                if (monster.position.y < 5) {
+                    monster.position.set(randomIntFromInterval(-490, 490), 10, randomIntFromInterval(-490, 490));
+                    monster.visible = false;
+                }
+            }
+        } 
     }
 }
 
