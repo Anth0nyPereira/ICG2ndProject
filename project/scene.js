@@ -418,7 +418,7 @@ function computeFrame() {
     // If camera gets touched by some sphere, izi kill rip
     for (var k=1; k<7; k++) {
         var sphere = sceneElements.sceneGraph.getObjectByName("sphere" + k);
-        if ((Math.round(camera.getWorldPosition(target).x) < sphere.position.x + 12 && Math.round(camera.getWorldPosition(target).x) > sphere.position.x - 12) && (Math.round(camera.getWorldPosition(target).z) < sphere.position.z + 12 && Math.round(camera.getWorldPosition(target).z) > sphere.position.z - 12)) {
+        if ((Math.round(camera.getWorldPosition(target).x) < sphere.position.x + 13 && Math.round(camera.getWorldPosition(target).x) > sphere.position.x - 13) && (Math.round(camera.getWorldPosition(target).z) < sphere.position.z + 13 && Math.round(camera.getWorldPosition(target).z) > sphere.position.z - 13)) {
             // alert("died 2.0");
             var deathSound = new Audio("/resources/death.wav");
             deathSound.play();
@@ -484,8 +484,8 @@ function computeFrame() {
         if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
         if (moveFaster) {
-            velocity.x = 1.2*velocity.x;
-            velocity.z = 1.2*velocity.z;
+            velocity.x = 1.4*velocity.x;
+            velocity.z = 1.4*velocity.z;
 
         }
 
