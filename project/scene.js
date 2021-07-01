@@ -6,6 +6,7 @@ const sceneElements = {
     renderer: null,
     composer: null,
     spheresDirections: null,
+    existingMonsters: null,
 };
 
 
@@ -212,7 +213,7 @@ function createCheckpoint() {
         var shapeSettings = { steps: 2, depth: 2, bevelEnabled: false, bevelThickness: 1, bevelSize: 1, bevelSegments: 2};
         var shapeGeometry = new THREE.ExtrudeGeometry(shape, shapeSettings);
         var edgesGeometry = new THREE.EdgesGeometry(shapeGeometry);
-        var material = new THREE.LineBasicMaterial({color: 0xff4d00, linewidth: 2})
+        var material = new THREE.LineBasicMaterial({color: 0xff4d00, linewidth: 3.5})
         var headAndTorso = new THREE.LineSegments(edgesGeometry, material);
 
          // 1st arm
@@ -233,7 +234,7 @@ function createCheckpoint() {
         monster.add(firstArm);
         monster.add(secondArm);
         
-
+        monster.rotation.y = 2 * Math.random();
         return monster;
     }
 
@@ -303,11 +304,18 @@ function load3DObjects(sceneGraph) {
         }
     }
 
+    sceneElements.existingMonsters = [];
     // Create monsters!!
-    var monster1 = createMonster();
-    monster1.position.y = 5;
-    sceneElements.sceneGraph.add(monster1);
-    
+    for (var m=1; m<50; m++) {
+        var monster = createMonster();
+        // console.log("monster" + m);
+        monster.name = "monster" + m;
+        monster.scale.set(1.5, 1.5, 1.5);
+        monster.visible = false;
+        monster.position.set(randomIntFromInterval(-490, 490), 10, randomIntFromInterval(-490, 490));
+        sceneElements.sceneGraph.add(monster);
+        sceneElements.existingMonsters.push(monster.name);
+    }
 
 
 }
@@ -369,7 +377,6 @@ function computeFrame() {
     }
     
     // Checkpoint animation
-
     var checkpoint = sceneElements.sceneGraph.getObjectByName("checkpoint");
     checkpoint.rotation.y += 0.12;
     
@@ -422,7 +429,36 @@ function computeFrame() {
     }
     
     
+    // Create monsters and animate them
     
+    if (count % 40 == 0) {
+        var pickedMonster = randomElementFromArray(sceneElements.existingMonsters); // get name of a specific monster
+        var monsterFromScene = sceneElements.sceneGraph.getObjectByName(pickedMonster);
+        if (monsterFromScene.visible == false) {
+            monsterFromScene.visible = true;
+        }
+    }
+
+    animateAllMonsters();
+
+    // HELP, I'm being followed by some random androids, PLS SAVE ME ----> AND I DIED (resetGame)
+    for (var k=0; k<sceneElements.existingMonsters.length; k++) {
+        var name = sceneElements.existingMonsters[k];
+        var monster = sceneElements.sceneGraph.getObjectByName(name);
+        if (monster.visible == true) {
+            console.log(camera.getWorldPosition(target));
+            console.log(monster.position.x + " " + monster.position.z);
+            if ((Math.round(camera.getWorldPosition(target).x) < monster.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > monster.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < monster.position.z + 10 && Math.round(camera.getWorldPosition(target).z) > monster.position.z - 10)) {
+                console.log("reset game!!");
+                var deathSound = new Audio("/resources/death.wav");
+                deathSound.play();
+                deathSound.currentTime=0;
+    
+                resetGame();
+            }
+        }
+        
+    }
     
     
     
@@ -583,6 +619,8 @@ function fallAndResetGame() {
         fallSound.play();
         fallSound.currentTime=0;
 
+        removeAllMonsters();
+
         showAllPlanes();
 
         resetCamera();
@@ -597,10 +635,37 @@ function resetGame() {
     
     showAllPlanes();
 
+    removeAllMonsters();
+
     resetCamera();
 
     // Reset score
     resetScore();
+}
+
+function removeAllMonsters() {
+    for (var i=0; i<sceneElements.existingMonsters.length; i++) {
+        var monsterName = sceneElements.existingMonsters[i];
+        var monster = sceneElements.sceneGraph.getObjectByName(monsterName);
+        monster.visible = false;
+    }
+}
+
+function animateAllMonsters() {
+    var camera = sceneElements.camera;
+    var target = new THREE.Vector3();
+    for (var i=0; i<sceneElements.existingMonsters.length; i++) {
+        var monsterName = sceneElements.existingMonsters[i];
+        var monster = sceneElements.sceneGraph.getObjectByName(monsterName);
+        if (monster.visible == true) {
+            var dir = new THREE.Vector3(); // create once an reuse it
+            var v2 = new THREE.Vector3(camera.getWorldPosition(target).x, camera.getWorldPosition(target).y, camera.getWorldPosition(target).z);
+            var v1 = new THREE.Vector3(monster.position.x, monster.position.y, monster.position.z);
+            dir.subVectors(v2, v1).normalize();
+            monster.position.x += dir.x;
+            monster.position.z += dir.z;
+        }
+    }
 }
 
 
