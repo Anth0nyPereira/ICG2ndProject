@@ -191,15 +191,50 @@ function createCheckpoint() {
     }
 
     function createMonster() {
-        var head = new THREE.Shape();
-        head.moveTo(-1.5, 3);
-        head.lineTo(1.5, 3);
-        head.lineTo(0, 0);
-        head.lineTo(-1.5, 3);
 
-        var headSettings = { steps: 2, depth: 2, bevelEnabled: false, bevelThickness: 1, bevelSize: 1, bevelSegments: 2};
-        var headGeometry = THREE.ExtrudeGeometry(shape, extrudeSettings);
-    
+        var monster = new THREE.Group();
+
+        var shape = new THREE.Shape();
+
+        // head
+        shape.moveTo(-1.5, 3);
+        shape.lineTo(1.5, 3);
+        shape.lineTo(0, 0);
+        shape.lineTo(-1.5, 3);
+
+        // torso
+        shape.moveTo(0, 0);
+        shape.lineTo(4, 0);
+        shape.lineTo(0, -7);
+        shape.lineTo(-4, 0);
+        shape.lineTo(0, 0);
+
+        var shapeSettings = { steps: 2, depth: 2, bevelEnabled: false, bevelThickness: 1, bevelSize: 1, bevelSegments: 2};
+        var shapeGeometry = new THREE.ExtrudeGeometry(shape, shapeSettings);
+        var edgesGeometry = new THREE.EdgesGeometry(shapeGeometry);
+        var material = new THREE.LineBasicMaterial({color: 0xff4d00, linewidth: 2})
+        var headAndTorso = new THREE.LineSegments(edgesGeometry, material);
+
+         // 1st arm
+        var boxGeometry = new THREE.BoxGeometry(0.5, 0.5, 6);
+        var edgesArmGeometry = new THREE.EdgesGeometry(boxGeometry);
+        var firstArm = new THREE.LineSegments(edgesArmGeometry, material);
+        firstArm.rotation.y = Math.PI/2;
+        firstArm.rotateOnWorldAxis(new THREE.Vector3(0,0,1), -1);
+        firstArm.position.set(5, -3.5, 0);
+
+        // 2nd arm
+        var secondArm = new THREE.LineSegments(edgesArmGeometry, material);
+        secondArm.rotation.y = Math.PI/2;
+        secondArm.rotateOnWorldAxis(new THREE.Vector3(0,0,1), 1);
+        secondArm.position.set(-5, -3.5, 0);
+
+        monster.add(headAndTorso);
+        monster.add(firstArm);
+        monster.add(secondArm);
+        
+
+        return monster;
     }
 
 
@@ -267,6 +302,11 @@ function load3DObjects(sceneGraph) {
             sphere1.rotation.x = Math.PI/2;
         }
     }
+
+    // Create monsters!!
+    var monster1 = createMonster();
+    monster1.position.y = 5;
+    sceneElements.sceneGraph.add(monster1);
     
 
 
@@ -285,10 +325,6 @@ var up = true;
 
 var deltaSpheres = [1, 1, 1, 1, 1, 1, 1, 1];
 var deltaSphere1 = 1;
-
-var spheres = 0;
-
-var firstTimeMoveSphere = true;
 
 function computeFrame() {
 
