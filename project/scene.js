@@ -407,8 +407,8 @@ function computeFrame() {
         checkpointGrab.currentTime=0;
         selectPosition(pLight, checkpoint);
 
-        // Update score (between 200 & 500)
-        updateScore(200, 500);
+        // Update score (between 500 & 1000)
+        updateScore(500, 1000);
 
     }
 
