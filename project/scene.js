@@ -201,44 +201,21 @@ function selectPosition(pLight, checkpoint) {
     checkpoint.position.set(pLight.position.x, 15, pLight.position.z);
 }
 
-    
-
-
 // Create and insert in the scene graph the models of the 3D scene
 function load3DObjects(sceneGraph) {
 
-    var geometry = new THREE.ConeGeometry( 200, 400, 8 );
-    //var geo = new THREE.EdgesGeometry( geometry );
-    var mat = new THREE.MeshBasicMaterial( { color: 0xff0000, linewidth: 50 } );
-
-    var mesh = new THREE.Mesh(geometry, mat);
-    mesh.position.y = 30;
-    mesh.scale.set(1/5, 1/5, 1/5);
-    // sceneElements.sceneGraph.add(mesh);
-
-    // ************************** //
-    // Create a ground plane
-    // ************************** //
+    // Create ground planes
     var allPlane = new THREE.Object3D();
     allPlane.name = "allPlane";
     for (var z = -25; z < 25; z++) {
         for (var x=-25; x<25; x++) {
             var plane = createPlane();
-            // plane.name = "plane" + x + "." + z;
             plane.position.set(x*20, -2, z*20);
             allPlane.add(plane);
         }
     }
 
     sceneElements.sceneGraph.add(allPlane);
-    
-    // Create user (for now, it's a cone)
-    var userGeometry = new THREE.ConeGeometry(3, 8, 16);
-    var userMaterial = new THREE.MeshBasicMaterial({color: 0xffff00});
-    var user = new THREE.Mesh(userGeometry, userMaterial);
-    user.name = "user";
-    user.position.set(0, 1, 40);
-    sceneElements.camera.add(user);
 
     // Create a checkpoint at the same position that is the pointlight
     var checkpoint1 = createCheckpoint();
@@ -279,11 +256,7 @@ function load3DObjects(sceneGraph) {
         sceneElements.sceneGraph.add(monster);
         sceneElements.existingMonsters.push(monster.name);
     }
-
-
 }
-
-var delta = 0.1;
 
 var count = 0;
 
@@ -356,11 +329,11 @@ function computeFrame() {
     if ((Math.round(camera.getWorldPosition(target).x) < pLight.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > pLight.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < pLight.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > pLight.position.z - 5)) {
         checkpointGrab.play();
         checkpointGrab.currentTime=0;
+        // Select random position for the pLight and checkpoint
         selectPosition(pLight, checkpoint);
 
         // Update score (between 500 & 1000)
         updateScore(500, 1000);
-
     }
 
     // Animate spheres
@@ -370,7 +343,6 @@ function computeFrame() {
     for (var k=1; k<7; k++) {
         var sphere = sceneElements.sceneGraph.getObjectByName("sphere" + k);
         if ((Math.round(camera.getWorldPosition(target).x) < sphere.position.x + 13 && Math.round(camera.getWorldPosition(target).x) > sphere.position.x - 13) && (Math.round(camera.getWorldPosition(target).z) < sphere.position.z + 13 && Math.round(camera.getWorldPosition(target).z) > sphere.position.z - 13)) {
-            // alert("died 2.0");
             var deathSound = new Audio("/resources/death.wav");
             deathSound.play();
             deathSound.currentTime=0;
@@ -381,7 +353,6 @@ function computeFrame() {
     
     
     // Create monsters and animate them
-    
     if (count % 20 == 0) {
         var pickedMonster = randomElementFromArray(sceneElements.existingMonsters); // get name of a specific monster
         var monsterFromScene = sceneElements.sceneGraph.getObjectByName(pickedMonster);
@@ -396,11 +367,8 @@ function computeFrame() {
     for (var k=0; k<sceneElements.existingMonsters.length; k++) {
         var name = sceneElements.existingMonsters[k];
         var monster = sceneElements.sceneGraph.getObjectByName(name);
-        if (monster.visible == true) {
-            console.log(camera.getWorldPosition(target));
-            console.log(monster.position.x + " " + monster.position.z);
+        if (monster.visible == true) { // only the monsters that are visible are "part of the game"
             if ((Math.round(camera.getWorldPosition(target).x) < monster.position.x + 5 && Math.round(camera.getWorldPosition(target).x) > monster.position.x - 5) && (Math.round(camera.getWorldPosition(target).z) < monster.position.z + 5 && Math.round(camera.getWorldPosition(target).z) > monster.position.z - 5)) {
-                console.log("reset game!!");
                 var deathSound = new Audio("/resources/death.wav");
                 deathSound.play();
                 deathSound.currentTime=0;
@@ -410,31 +378,32 @@ function computeFrame() {
         }
         
     }
-    
-    
-    
-    
 
     requestAnimationFrame(computeFrame);
 
     const time = performance.now();
     var scenecontrols = sceneElements.control;
-    if (scenecontrols.isLocked === true) {
-        const delta = ( time - prevTime ) / 1000;
+    if (scenecontrols.isLocked == true) {
+        const delta = (time - prevTime)/1000;
 
         velocity.x -= velocity.x * 10.0 * delta;
         velocity.z -= velocity.z * 10.0 * delta;
 
-        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-
-        direction.z = Number( moveForward ) - Number( moveBackward );
-        direction.x = Number( moveRight ) - Number( moveLeft );
+        // Get current directions
+        direction.z = Number(moveForward) - Number(moveBackward);
+        direction.x = Number(moveRight) - Number(moveLeft);
         direction.normalize(); // this ensures consistent movements in all directions
 
-        if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-        if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+        // PointerLockControls moving
+        if (moveForward || moveBackward) {
+            velocity.z -= direction.z * 400.0 * delta; 
+        }
 
-        if (moveFaster) {
+        if (moveLeft || moveRight) {
+            velocity.x -= direction.x * 400.0 * delta;
+        }
+
+        if (moveFaster) { // press shift
             velocity.x = 1.4*velocity.x;
             velocity.z = 1.4*velocity.z;
 
@@ -443,10 +412,8 @@ function computeFrame() {
         scenecontrols.moveRight(-velocity.x * delta);
         scenecontrols.moveForward(-velocity.z * delta);
 
-        scenecontrols.getObject().position.y += (velocity.y * delta);
-
+        // Check game boundaries/limits
         var camera = sceneElements.camera;
-
         var target = new THREE.Vector3();
 
         if (Math.round(camera.getWorldPosition(target).x) >= 490) {
@@ -476,8 +443,7 @@ function computeFrame() {
     }
 
     prevTime = time;
-
-    sceneElements.composer.render(sceneElements);
+    sceneElements.composer.render(sceneElements); // render the renderer with the bloom effect
 
 }
 
