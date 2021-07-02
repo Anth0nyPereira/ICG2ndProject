@@ -38,6 +38,8 @@ const helper = {
         // ***************************** //
     
         // Create PointLight
+        // NOTE: why am I using a pLight here??
+        // well, it's to be easier to set the "hitbox" (circular) to trigger the "I grabbed a new checkpoint" animation
         const pLight = new THREE.PointLight(0xffffff, 4, 8);
         pLight.name = "pLight";
         pLight.position.set(10, 4, 10);
@@ -49,27 +51,18 @@ const helper = {
         const axesHelper = new THREE.AxesHelper(500);
         sceneElements.sceneGraph.add(axesHelper);
 
-
-        // *********************************** //
-        // Create renderer (with shadow map)
-        // *********************************** //
+        // Add renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         sceneElements.renderer = renderer;
         renderer.setPixelRatio(window.devicePixelRatio);
-        // renderer.toneMapping = THREE.ReinhardToneMapping;
-        
         renderer.toneMapping = THREE.LinearToneMapping;
-        /*
-        renderer.setClearColor(0x000000,0.0);
-        */
-        // renderer.setClearColor('rgb(255, 255, 150)', 1.0);
         renderer.setSize(width, height);
 
         // Setup shadowMap property
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        // Blooom
+        // Blooom effect
         var renderScene = new THREE.RenderPass( sceneElements.sceneGraph, sceneElements.camera );
         // Bloom channel creation
         var bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 3, 0, 0);
@@ -79,33 +72,27 @@ const helper = {
         bloomPass.strength = 1;
         bloomPass.radius = 0.5;
         
-        
-        var composer = new THREE.EffectComposer( renderer );
-        composer.setSize( window.innerWidth, window.innerHeight );
-        composer.addPass( renderScene );
-        // Insert gloom channel bloomPass into composer
-        composer.addPass( bloomPass );
+        var composer = new THREE.EffectComposer(renderer);
+        composer.setSize(window.innerWidth, window.innerHeight);
+        composer.addPass(renderScene);
+
+        // Insert bloomPass into composer
+        composer.addPass(bloomPass);
         sceneElements.composer = composer;
 
 
-        // **************************************** //
-        // Add the rendered image in the HTML DOM
-        // **************************************** //
+        // Add rendered image to html
         const htmlElement = document.querySelector("#Tag3DScene");
         htmlElement.appendChild(renderer.domElement);
 
-        // ************************** //
-        // NEW --- Control for the camera
-        // ************************** //
+        // Add PointerLockControls (1st person camera)
         sceneElements.control = new THREE.PointerLockControls(camera , document.body);
 
         document.body.addEventListener( 'click', function () {
             //lock mouse on screen
-            document.getElementById("menu").style.display = "none";
+            document.getElementById("menu").style.display = "none"; // remove the controls menu
             sceneElements.control.lock();
         });
-
-
     },
 
     render: function render(sceneElements) {
