@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> NEON RACE RAVES</title>
+
+	<link rel="icon" type="image/png" href="resources/favicon.png"/>
+
+	<link rel="stylesheet" href="style.css">
+
+	<script type="text/javascript" src="lib/three.js" defer></script>
+	<script type="text/javascript" src="lib/PointerLockControls.js" defer></script>
+	<script type="text/javascript" src="lib/EffectComposer.js" defer></script>
+	<script type="text/javascript" src="lib/UnrealBloomPass.js" defer></script>
+	<script type="text/javascript" src="lib/BloomPass.js" defer></script>
+	<script type="text/javascript" src="lib/RenderPass.js" defer></script>
+	<script type="text/javascript" src="lib/CopyShader.js" defer></script>
+	<script type="text/javascript" src="lib/LuminosityHighPassShader.js" defer></script>
+	<script type="text/javascript" src="lib/ShaderPass.js" defer></script>
+	<script type="text/javascript" src="helper.js" defer></script>
+	<script type="text/javascript" src="scene.js" defer></script>
+
+	<style>
+		@font-face { font-family: NeonPixel; src: url('/resources/neon_pixel-7.ttf'); } 
+		p {
+    		font-family: NeonPixel;
+		}
+
+		#menu {
+			position: absolute;
+			width: 500px;
+			height: 450px;
+			z-index: 99;
+			top: 50%;
+			left: 50%;
+			margin: -225px 0 0 -250px;
+			background-color: rgb(255, 255, 255, 0.8);
+		}
+	</style>
+
+
+</head>
+
+<body>
+	<audio id="player" autoplay loop>
+        <source src="resources/background.mp3" type="audio/mp3">
+    </audio>
+	<div id="Tag3DScene"> 
+		<p style="position: absolute; display: block; z-index: 99; left: 1%; top: -5%; color: white; font-size: 4vw;">Score: <span id="score">00000000</span></p>
+
+		<div id="menu">
+			<p style="text-align: center; font-size: 1.7vw">CONTROLS</p>
+			<p style="text-align: center; font-size: 1.7vw">Move: W/A/S/D</p>
+			<p style="text-align: center; font-size: 1.7vw">Move Faster: Shift</p>
+			<p style="text-align: center; font-size: 1.7vw">Look Around: Move Cursor</p>
+			<p style="text-align: center; font-size: 1.7vw">Show Menu: Double Esc</p>
+			<p style="text-align: center; font-size: 1.7vw">Return Game: Click</p>
+		</div>
+		<video id="video" playsinline webkit-playsinline muted loop autoplay width="320" height="240" src="resources/video.mp4" style="display: none;"></video>
+	</div>
+</body>
+
+</html>
