@@ -538,7 +538,7 @@ function fallAndResetGame() {
     // unlock (remove mouse input) so that the camera will change its y-position
     sceneElements.control.unlock();
     sceneElements.camera.position.y -= 1; // falling camera
-    if (sceneElements.camera.position.y == -35) {
+    if (sceneElements.camera.position.y == -30) {
         var fallSound = new Audio("/resources/fall.wav");
         fallSound.play();
         fallSound.currentTime=0;
@@ -609,11 +609,21 @@ function checkIfMonsterIsInsideVoid(monster) {
     var children = allPlane.children; 
     for (var i=0; i<children.length; i++) {
         var elem = children[i].children[0];
-        if (elem.visible == false) {
-            if ((Math.round(monster.position.x) < elem.getWorldPosition(target).x + 10 && Math.round(monster.position.x) > elem.getWorldPosition(target).x - 10) && (Math.round(monster.position.z) < elem.getWorldPosition(target).z + 10 && Math.round(monster.position.z) > elem.getWorldPosition(target).z - 10)) {
+        if ((Math.round(monster.position.x) < elem.getWorldPosition(target).x + 10 && Math.round(monster.position.x) > elem.getWorldPosition(target).x - 10) && (Math.round(monster.position.z) < elem.getWorldPosition(target).z + 10 && Math.round(monster.position.z) > elem.getWorldPosition(target).z - 10)) {
+            if (elem.visible == false) {
                 monster.position.y -= 1;
-
                 // Update score (for killing a monster or just by luck lmao they are dumb sometimes)
+                var camera = sceneElements.camera;
+                if (camera.getWorldPosition(target).y == 10) { // when you fall/lose, even if there are monsters falling too, you do not receive any points anymore!!
+                    updateScore(100, 200);
+                }     
+                if (monster.position.y < 5) {
+                    monster.position.set(randomIntFromInterval(-490, 490), 10, randomIntFromInterval(-490, 490));
+                    monster.visible = false;
+                }
+            } else if (elem.visible == true && monster.position.y < 10) { // when a monster started to fall but then the floor reappeared
+                console.log("monster is falling even with element=true");
+                monster.position.y -= 1;
                 var camera = sceneElements.camera;
                 if (camera.getWorldPosition(target).y == 10) { // when you fall/lose, even if there are monsters falling too, you do not receive any points anymore!!
                     updateScore(100, 200);
@@ -626,6 +636,7 @@ function checkIfMonsterIsInsideVoid(monster) {
         } 
     }
 }
+
 
 
 
