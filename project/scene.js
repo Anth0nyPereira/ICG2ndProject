@@ -623,20 +623,22 @@ function checkIfMonsterIsInsideVoid(monster) {
                     monster.visible = false;
                 }
             }
-        } else if (elem.visible == true && (Math.round(monster.position.x) < elem.getWorldPosition(target).x + 10 && Math.round(monster.position.x) > elem.getWorldPosition(target).x - 10) && (Math.round(monster.position.z) < elem.getWorldPosition(target).z + 10 && Math.round(monster.position.z) > elem.getWorldPosition(target).z - 10) && monster.position.y < 10 && monster.position.y > 5) {
-            // It can happen that a floor was missing when the monster started to fall, so keep going the "falling" even if the floor reappeared
-            monster.position.y -= 1;
-
-            // Update score (for killing a monster or just by luck lmao they are dumb sometimes)
-            var camera = sceneElements.camera;
-            if (camera.getWorldPosition(target).y == 10) { // when you fall/lose, even if there are monsters falling too, you do not receive any points anymore!!
-                updateScore(100, 200);
-            }     
-            if (monster.position.y < 5) {
-                monster.position.set(randomIntFromInterval(-490, 490), 10, randomIntFromInterval(-490, 490));
-                monster.visible = false;
-            }
         }
+    if (monster.position.y < 10) {
+        // It can happen that a floor was missing when the monster started to fall, so keep going the "falling" even if the floor reappeared
+        monster.position.y -= 1;
+
+        // Update score (for killing a monster or just by luck lmao they are dumb sometimes)
+        var camera = sceneElements.camera;
+        if (camera.getWorldPosition(target).y == 10) { // when you fall/lose, even if there are monsters falling too, you do not receive any points anymore!!
+            updateScore(100, 200);
+        }     
+        if (monster.position.y < 5) {
+            monster.position.set(randomIntFromInterval(-490, 490), 10, randomIntFromInterval(-490, 490));
+            monster.visible = false;
+        }
+        }
+    
     }
 }
 
