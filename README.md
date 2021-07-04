@@ -1,7 +1,7 @@
 # NEON RACE RAVES - https://github.com/Anth0nyPereira/ICG2ndProject
 
 <p align="center">
-  <img width="2000" src="resources/readme.png">
+  <img width="2000" src="resources/readme.png"> 
 </p>
 
 If you want to play this game, use **Google Chrome** and first check that there are no windows opened </br>
