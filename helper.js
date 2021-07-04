@@ -2,40 +2,22 @@ const helper = {
 
     initEmptyScene: function (sceneElements) {
 
-        // ************************** //
         // Create the 3D scene
-        // ************************** //
         sceneElements.sceneGraph = new THREE.Scene();
         //Get your video element:
         const video = document.getElementById('video');
 
-        //Create your video texture:
+        // Create video texture
         const videoTexture = new THREE.VideoTexture(video);
         sceneElements.sceneGraph.background = videoTexture;
         
-        // ************************** //
         // Add camera
-        // ************************** //
         const width = window.innerWidth;
         const height = window.innerHeight;
         const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 500);
         sceneElements.camera = camera;
         camera.position.set(0, 1, 40);
         camera.lookAt(new THREE.Vector3(0, 0, -150));
-
-        // ************************** //
-        // Illumination
-        // ************************** //
-
-        // ************************** //
-        // Add ambient light
-        // ************************** //
-        const ambientLight = new THREE.AmbientLight('rgb(255, 255, 255)', 0.2);
-        sceneElements.sceneGraph.add(ambientLight);
-
-        // ***************************** //
-        // Add spotlight (with shadows)
-        // ***************************** //
     
         // Create PointLight
         // NOTE: why am I using a pLight here??
