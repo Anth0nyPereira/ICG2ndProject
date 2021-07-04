@@ -45,9 +45,9 @@ const helper = {
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         // Blooom effect
-        var renderScene = new THREE.RenderPass( sceneElements.sceneGraph, sceneElements.camera );
+        var renderScene = new THREE.RenderPass(sceneElements.sceneGraph, sceneElements.camera);
         // Bloom channel creation
-        var bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 3, 0, 0);
+        var bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 3, 0, 0);
         bloomPass.renderToScreen = true;
         
         bloomPass.threshold = 0.25;

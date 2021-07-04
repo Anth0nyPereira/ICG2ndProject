@@ -622,7 +622,6 @@ function checkIfMonsterIsInsideVoid(monster) {
                     monster.visible = false;
                 }
             } else if (elem.visible == true && monster.position.y < 10) { // when a monster started to fall but then the floor reappeared
-                console.log("monster is falling even with element=true");
                 monster.position.y -= 1;
                 var camera = sceneElements.camera;
                 if (camera.getWorldPosition(target).y == 10) { // when you fall/lose, even if there are monsters falling too, you do not receive any points anymore!!
@@ -636,6 +635,7 @@ function checkIfMonsterIsInsideVoid(monster) {
         } 
     }
 }
+
 
 
 
